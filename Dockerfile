@@ -22,8 +22,26 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
+# Install develop tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libc6-dev gcc-12 g++-12 \
+    cmake make ninja-build wget \
+    openssh-client \
+    lsb-release software-properties-common gnupg \
+    python3-colorama python3-dpkt && \
+    wget -O ./llvm-snapshot.gpg.key https://apt.llvm.org/llvm-snapshot.gpg.key && \
+    apt-key add ./llvm-snapshot.gpg.key && \
+    rm ./llvm-snapshot.gpg.key && \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/llvm-apt/jammy/ llvm-toolchain-jammy main" > /etc/apt/sources.list.d/llvm-apt.list && \
+    apt-get update && \
+    version=`apt-cache search clangd- | grep clangd- | awk -F' ' '{print $1}' | sort -V | tail -1 | cut -d- -f2` && \
+    apt-get install -y --no-install-recommends clangd-$version && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 50 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 50 && \
+    update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-$version 50
+
 RUN sudo apt update && \
-    sudo apt install python3-pip curl wget htop vim unzip -y && \
+    sudo apt install clangd clang clang-format python3-pip curl wget htop vim unzip -y && \
     pip install xmacro gdown
 
 # Install small_gicp
@@ -49,19 +67,13 @@ RUN export ROSDISTRO_INDEX_URL=https://mirrors.tuna.tsinghua.edu.cn/rosdistro/in
 RUN --mount=type=bind,target=/home/ws,source=.,readonly=false cd /home/ws \
     && rosdep install -r --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y || true
 
-RUN --mount=type=bind,target=/home/ws,source=.,readonly=false cd /home/ws \
-    && sudo gdown https://drive.google.com/uc\?id\=1kAxdOU-mi1TcLssyKmDR0pz0ojF96jQ4 -O /tmp/simulation_pcd.zip && \
-    sudo unzip /tmp/simulation_pcd.zip -d /home/ws/src/pb2025_nav_bringup/pcd/simulation/ && \
-    sudo rm /tmp/simulation_pcd.zip
+# if you need simulation pcd, uncomment the following lines
+# RUN --mount=type=bind,target=/home/ws,source=.,readonly=false cd /home/ws \
+#     && sudo gdown https://drive.google.com/uc\?id\=1kAxdOU-mi1TcLssyKmDR0pz0ojF96jQ4 -O /tmp/simulation_pcd.zip && \
+#     sudo unzip /tmp/simulation_pcd.zip -d /home/ws/src/pb2025_nav_bringup/pcd/simulation/ && \
+#     sudo rm /tmp/simulation_pcd.zip
 
-
-# setup .zshrc
-# RUN echo 'export TERM=xterm-256color\n\
-#     source ~/ros_ws/install/setup.zsh\n\
-#     eval "$(register-python-argcomplete3 ros2)"\n\
-#     eval "$(register-python-argcomplete3 colcon)"\n'\
-#     >> /root/.zshrc
-
+# TODO: entrypoint setup
 # source entrypoint setup
 # RUN sed --in-place --expression \
 #       '$isource "/root/ros_ws/install/setup.bash"' \
