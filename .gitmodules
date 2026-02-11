@@ -19,9 +19,6 @@
 [submodule "pointcloud_to_laserscan"]
 	path = src/pointcloud_to_laserscan
 	url = https://github.com/JinGangRobo/pointcloud_to_laserscan.git
-[submodule "src/robot_description"]
-	path = src/robot_description
-	url = https://github.com/JinGangRobo/pb2025_robot_description
 [submodule "src/sdformat_tools"]
 	path = src/sdformat_tools
 	url = https://github.com/JinGangRobo/sdformat_tools
