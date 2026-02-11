@@ -1,4 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/u_int16.hpp"
+#include <std_msgs/msg/detail/u_int16__struct.hpp>
 #include <string>
 
 #include "communication.hpp"
@@ -25,6 +27,9 @@ public:
     this->get_parameter("state_data_receiving_port",
                         state_data_receiving_port_);
 
+    state_data_publisher_ =
+        this->create_publisher<std_msgs::msg::UInt16>("state_data_dbg", 10);
+
     if (!communication_.startReceiving(
             state_data_receiving_host_, state_data_receiving_port_,
             [this](const StateData &data) { state_data_callback(data); })) {
@@ -48,10 +53,12 @@ public:
 
 private:
   void state_data_callback(const StateData &data) {
-    RCLCPP_INFO(this->get_logger(), "Received state data:(%f, %f, %f)",
-                data.gimbal_faceing[0], data.gimbal_faceing[1],
-                data.gimbal_faceing[2]);
+    auto msg = std_msgs::msg::UInt16();
+    msg.data = data.gimbal_faceing[0];
+    state_data_publisher_->publish(msg);
   }
+
+  rclcpp::Publisher<std_msgs::msg::UInt16>::SharedPtr state_data_publisher_;
 
   std::string pilot_data_sending_host_;
   int pilot_data_sending_port_;

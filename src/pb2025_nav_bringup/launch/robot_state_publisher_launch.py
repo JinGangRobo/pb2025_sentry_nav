@@ -29,9 +29,7 @@ from launch_ros.actions import PushRosNamespace, SetRemap
 
 def generate_launch_description():
     # Get the launch directory
-    pkg_pb2025_robot_description_dir = get_package_share_directory(
-        "pb2025_robot_description"
-    )
+    pkg_autopilot_server_dir = get_package_share_directory("autopilot_server")
 
     namespace = LaunchConfiguration("namespace")
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -64,9 +62,9 @@ def generate_launch_description():
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
                     os.path.join(
-                        pkg_pb2025_robot_description_dir,
+                        pkg_autopilot_server_dir,
                         "launch",
-                        "robot_description_launch.py",
+                        "autopilot_server_launch.py",
                     )
                 ),
                 launch_arguments={

@@ -4,3 +4,15 @@ autopilot_server:
     pilot_data_sending_port: 42331
     state_data_receiving_host: 127.0.0.1
     state_data_receiving_port: 42330
+
+joint_state_publisher:
+  ros__parameters:
+    use_sim_time: false
+    rate: 200
+    source_list: ["serial/gimbal_joint_state"]
+    offset_timestamp: 0.0
+
+robot_state_publisher:
+  ros__parameters:
+    use_sim_time: false
+    publish_frequency: 200.0
