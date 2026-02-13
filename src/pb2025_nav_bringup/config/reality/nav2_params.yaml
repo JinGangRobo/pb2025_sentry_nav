@@ -581,6 +581,7 @@ autopilot_server:
     pilot_data_sending_port: 42331
     state_data_receiving_host: 127.0.0.1
     state_data_receiving_port: 42330
+    cmd_vel_topic: "cmd_vel"
 
 pb_teleop_twist_joy_node:
   ros__parameters:
